@@ -31,15 +31,17 @@ public static class BankTransactionControllers
 		})
 		.DisableAntiforgery();
 
-		app.MapGet("/api/transactions", async (IBankTransactionRepository repo) =>
+		app.MapGet("/api/transactions", async (
+			IBankTransactionRepository repo,
+			int? month = null, 
+			int? year = null, 
+			Guid? titleId = null, 
+			BankType? bank = null, 
+			TransactionType? type = null 
+		) =>
 		{
-			var bankTransactions = await repo.GetAllTransactionsAsync();
-			return Results.Ok(bankTransactions);
-		});
-
-		app.MapGet("/api/transactions/nubank", async (IBankTransactionRepository repo) =>
-		{
-			var bankTransactions = await repo.GetTransactionsByBankAsync(BankType.Nubank);
+			var bankTransactions = await repo.GetTransactionsAsync(month, year, titleId, bank, type);
+			
 			return Results.Ok(bankTransactions);
 		});
 

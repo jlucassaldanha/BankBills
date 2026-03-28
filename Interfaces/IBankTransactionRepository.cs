@@ -10,9 +10,12 @@ public interface IBankTransactionRepository
 	Task AddRangeAsync(IEnumerable<BankTransaction> bankTransactions);
 	Task UpdateTransactionAsync(BankTransaction bankTransaction);
 	Task DeleteTransactionAsync(Guid bankTransactionId);
+	Task<List<BankTransactionRecord>> GetTransactionsAsync(
+		int? month = null, 
+		int? year = null, 
+		Guid? titleId = null, 
+		BankType? bank = null, 
+		TransactionType? type = null
+	);
 	Task<List<BankTransactionRecord>> GetAllTransactionsAsync();
-	Task<List<BankTransactionRecord>> GetTransactionsByBankAsync(BankType bank);
-	Task<List<BankTransactionRecord>> GetTransactionsByTitleAsync(Guid titleId);
-	Task<List<BankTransactionRecord>> GetTransactionsByDateAsync(DateOnly date);
-	Task<List<BankTransactionRecord>> GetTransactionsByTypeAsync(TransactionType type);
 }

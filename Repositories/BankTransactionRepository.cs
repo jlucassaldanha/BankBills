@@ -33,74 +33,58 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 	{
 		await _db.BankTransaction.Where(bt => bt.Id == bankTransactionId).ExecuteDeleteAsync();
 	}
+
+	public async Task<List<BankTransactionRecord>>GetTransactionsAsync(
+		int? month = null, 
+		int? year = null, 
+		Guid? titleId = null, 
+		BankType? bank = null, 
+		TransactionType? type = null
+	)
+	{
+		var query = _db.BankTransaction.AsQueryable();
+
+		if (month.HasValue)
+		{
+			query = query.Where(bt => bt.Date.Month == month);
+		}
+
+		if (year.HasValue)
+		{
+			query = query.Where(bt => bt.Date.Year == year);
+		}
+
+		if (titleId.HasValue)
+		{
+			query = query.Where(bt => bt.TitleId.Equals(titleId));
+		}
+
+		if (bank.HasValue)
+		{
+			query = query.Where(bt => bt.Bank == bank);
+		}
+
+		if (type.HasValue)
+		{
+			query = query.Where(bt => bt.Type == type);
+		}
+
+		return await query
+			.Select(bt => new BankTransactionRecord(
+				bt.Id,
+				bt.Date,
+				bt.Amount,
+				bt.Type.ToString(),
+				bt.Bank.ToString(),
+				bt.TitleId,
+				bt.Title.Name
+			))
+			.ToListAsync();
+	}
 	
 	public async Task<List<BankTransactionRecord>> GetAllTransactionsAsync()
 	{
 		return await _db.BankTransaction
-			.Select(bt => new BankTransactionRecord(
-				bt.Id,
-				bt.Date,
-				bt.Amount,
-				bt.Type.ToString(),
-				bt.Bank.ToString(),
-				bt.TitleId,
-				bt.Title.Name
-			))
-			.ToListAsync();
-	}
-
-	public async Task<List<BankTransactionRecord>> GetTransactionsByBankAsync(BankType bank)
-	{
-		return await _db.BankTransaction
-			.Where(bt => bt.Bank == bank)
-			.Select(bt => new BankTransactionRecord(
-				bt.Id,
-				bt.Date,
-				bt.Amount,
-				bt.Type.ToString(),
-				bt.Bank.ToString(),
-				bt.TitleId,
-				bt.Title.Name
-			))
-			.ToListAsync();
-	}
-	
-	public async Task<List<BankTransactionRecord>> GetTransactionsByTitleAsync(Guid titleId)
-	{
-		return await _db.BankTransaction
-			.Where(bt => bt.TitleId == titleId)
-			.Select(bt => new BankTransactionRecord(
-				bt.Id,
-				bt.Date,
-				bt.Amount,
-				bt.Type.ToString(),
-				bt.Bank.ToString(),
-				bt.TitleId,
-				bt.Title.Name
-			))
-			.ToListAsync();
-	}
-	
-	public async Task<List<BankTransactionRecord>> GetTransactionsByDateAsync(DateOnly date)
-	{
-		return await _db.BankTransaction
-			.Where(bt => bt.Date == date)
-			.Select(bt => new BankTransactionRecord(
-				bt.Id,
-				bt.Date,
-				bt.Amount,
-				bt.Type.ToString(),
-				bt.Bank.ToString(),
-				bt.TitleId,
-				bt.Title.Name
-			))
-			.ToListAsync();
-	}
-	
-	public async Task<List<BankTransactionRecord>> GetTransactionsByTypeAsync(TransactionType type)
-	{
-		return await _db.BankTransaction
-			.Where(bt => bt.Type == type)
 			.Select(bt => new BankTransactionRecord(
 				bt.Id,
 				bt.Date,
