@@ -51,7 +51,7 @@ public class BankTransactionService(
 			if (!Double.TryParse(record.Amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
 				continue;
 
-			var transactionType = amount < 0 ? TransactionType.OutFlow : TransactionType.InFlow;
+			var transactionType = amount < 0 ? TransactionType.InFlow : TransactionType.OutFlow;
 			var absoluteAmount = Math.Abs(amount);
 
 			var titleKey = record.Title.ToUpper();
