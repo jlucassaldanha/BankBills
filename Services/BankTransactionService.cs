@@ -1,8 +1,6 @@
 using System.Globalization;
 using BankBills.Entities;
 using BankBills.Interfaces;
-using BankBills.Services.Parsers;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace BankBills.Services;
 
@@ -18,7 +16,7 @@ public class BankTransactionService(
 		var titleDictionary = existingTitles.ToDictionary(t => t.Name.ToUpper(), t => t.Id);
 
 		var rawRecords = csvParser.Parse(fileStream).ToList();
-		if (!rawRecords.Any()) return;
+		if (rawRecords.Count == 0) return;
 
 		var parsedDates = rawRecords
 			.Select(r => DateOnly.TryParseExact(r.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateOnly.MinValue)
@@ -34,21 +32,18 @@ public class BankTransactionService(
 		foreach (var tx in existingTransactions)
 		{
 			var key = $"{tx.Date:yyyy-MM-dd}_{tx.TitleId}_{tx.Amount}";
-			if (!transactionOccurrences.ContainsKey(key))
-			{
-				transactionOccurrences[key] = 0;
-			}
-			transactionOccurrences[key]++;
+			
+			transactionOccurrences.TryGetValue(key, out int count);
+			transactionOccurrences[key] = count + 1;
 		}
 
 		var bankTransactions = new List<BankTransaction>();
-
 		foreach (var record in rawRecords)
 		{
 			if (!DateOnly.TryParseExact(record.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
 				continue;
 
-			if (!Double.TryParse(record.Amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+			if (!double.TryParse(record.Amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
 				continue;
 
 			var transactionType = amount < 0 ? TransactionType.InFlow : TransactionType.OutFlow;
@@ -65,10 +60,9 @@ public class BankTransactionService(
 			}
 
 			var uniqueKey = $"{date:yyyy-MM-dd}_{currentTitleId}_{absoluteAmount}";
-
-			if (transactionOccurrences.ContainsKey(uniqueKey) && transactionOccurrences[uniqueKey] > 0)
+			if (transactionOccurrences.TryGetValue(uniqueKey, out int currentCount) && currentCount > 0)
 			{
-				transactionOccurrences[uniqueKey]--;
+				transactionOccurrences[uniqueKey] = currentCount - 1;
 				continue;
 			}
 

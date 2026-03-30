@@ -2,7 +2,6 @@ using BankBills.Entities;
 using BankBills.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using BankBills.Data;
-using BankBills.DTOs;
 using BankBills.Models;
 
 namespace BankBills.Repositories;
@@ -82,7 +81,7 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 			.ToListAsync();
 	}
 	
-	public async Task<List<BankTransactionRecord>> GetAllTransactionsAsync()
+	/*public async Task<List<BankTransactionRecord>> GetAllTransactionsAsync()
 	{
 		return await _db.BankTransaction
 			.Select(bt => new BankTransactionRecord(
@@ -95,7 +94,7 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 				bt.Title.Name
 			))
 			.ToListAsync();
-	}
+	}*/
 
 	public async Task<List<BankTransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate)
 	{
