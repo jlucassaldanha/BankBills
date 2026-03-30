@@ -13,13 +13,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<ITitleRepository, TitleRepository>();
 builder.Services.AddScoped<IBankTransactionRepository, BankTransactionRepository>();
+builder.Services.AddScoped<ITransactionsAnalyticsRepository, TransactionsAnalyticsRepository>();
 
 builder.Services.AddScoped<ICsvParser, NubankCsvParser>();
 builder.Services.AddScoped<IBankTransactionService, BankTransactionService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 var app = builder.Build();
 
 app.MapBankTransactionControllers();
 app.MapTitlesControllers();
+app.MapAnalyticsControllers();
 
 app.Run();

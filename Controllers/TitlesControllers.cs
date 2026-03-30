@@ -6,7 +6,9 @@ public static class TitlesControllers
 {
 	public static void MapTitlesControllers(this WebApplication app)
 	{
-		app.MapGet("/api/titles", async (ITitleRepository repo) =>
+		var group = app.MapGroup("/api/titles");
+
+		group.MapGet("/", async (ITitleRepository repo) =>
 		{
 			var titles = await repo.GetAllTitlesAsync();
 

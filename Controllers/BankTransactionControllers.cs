@@ -7,30 +7,9 @@ public static class BankTransactionControllers
 {
 	public static void MapBankTransactionControllers(this WebApplication app)
 	{
-		app.MapPost("/api/transactions/nubank/import", async (
-			IFormFile file,
-			IBankTransactionService bankTransactionService
-		) =>
-		{
-			if (file is null || file.Length == 0)
-			{
-				return Results.BadRequest("Nenhum arquivo enviado.");
-			}
+		var group = app.MapGroup("/api/transactions");
 
-			var extension = Path.GetExtension(file.FileName);
-			if (!extension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
-			{
-				return Results.BadRequest("Apenas arquivos .csv são aceitos.");
-			}
-
-			using var stream = file.OpenReadStream();
-			await bankTransactionService.ProcessNubankFileAsync(stream);
-
-			return Results.Ok("Arquivo processado e transações importadas para o banco de dados");
-		})
-		.DisableAntiforgery();
-
-		app.MapGet("/api/transactions", async (
+		group.MapGet("/", async (
 			IBankTransactionRepository repo,
 			int? month = null, 
 			int? year = null, 
@@ -46,5 +25,32 @@ public static class BankTransactionControllers
 
 			return Results.Ok(bankTransactions);
 		});
+
+		group.MapPost("/nubank/import", async (
+			IFormFileCollection files,
+			IBankTransactionService bankTransactionService
+		) =>
+		{
+			if (files is null || files.Count == 0)
+			{
+				return Results.BadRequest("Nenhum arquivo foi enviado.");
+			}
+
+			int processedFiles = 0;
+
+			foreach(var file in files)
+			{
+				var extension = Path.GetExtension(file.FileName);
+				if (!extension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
+					return Results.BadRequest("Apenas arquivos .csv são aceitos.");
+
+				using var stream = file.OpenReadStream();
+				await bankTransactionService.ProcessNubankFileAsync(stream);
+				processedFiles++;
+			}
+
+			return Results.Ok("Arquivo processado e transações importadas para o banco de dados");
+		})
+		.DisableAntiforgery();
 	}
 }
