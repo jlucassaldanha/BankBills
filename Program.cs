@@ -20,5 +20,6 @@ builder.Services.AddScoped<IBankTransactionService, BankTransactionService>();
 var app = builder.Build();
 
 app.MapBankTransactionControllers();
+app.MapTitlesControllers();
 
 app.Run();

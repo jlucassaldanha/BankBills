@@ -41,16 +41,11 @@ public static class BankTransactionControllers
 		) =>
 		{
 			var bankTransactions = await repo.GetTransactionsAsync(month, year, titleId, bank, type);
-			
+
+			if (bankTransactions.Count <= 0)
+				return Results.NotFound("Transações não encontradas.");
+
 			return Results.Ok(bankTransactions);
 		});
-
-		// Colocar filtros opcionais como o tipo, o banco, a data, o titulo
-
-		/*app.MapGet("/api/titles", async (ITitleRepository repo) =>
-		{
-			var titles = await repo.GetAllTitlesAsync();
-			return Results.Ok(titles);
-		});*/
 	}
 }
