@@ -1,11 +1,11 @@
 using BankBills.Entities;
 using BankBills.Interfaces;
 
-namespace BankBills.Controllers;
+namespace BankBills.Endpoints;
 
-public static class AnalyticsControllers
+public static class AnalyticsEndpoints
 {
-	public static void MapAnalyticsControllers(this WebApplication app)
+	public static void MapAnalyticsEndpoints(this WebApplication app)
 	{
 		var group = app.MapGroup("/api/analytics");
 
@@ -20,7 +20,8 @@ public static class AnalyticsControllers
 			return await analyticsService.SummaryAnalyticsAsync(month, year, titleId, bank);
 		});
 
-		group.MapGet("/top-categories", async (IAnalyticsService analyticsService,
+		group.MapGet("/top-categories", async (
+			IAnalyticsService analyticsService,
 			int? month = null, 
 			int? year = null, 
 			BankType? bank = null
@@ -28,7 +29,5 @@ public static class AnalyticsControllers
 		{
 			return await analyticsService.CategoryAnalyticsAsync(month, year, bank);
 		});
-
-		group.MapGet("/prediction", async () => {});
 	}
 }

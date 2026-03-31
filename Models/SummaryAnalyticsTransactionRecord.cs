@@ -1,6 +1,6 @@
 namespace BankBills.Models;
 
-public record TransactionAnalyticsSummaryRecord(
+public record SummaryAnalyticsTransactionRecord(
     DateOnly MaxDate,
 	DateOnly MinDate,
 	double TotalInFlow,

@@ -1,16 +1,16 @@
 using BankBills.Entities;
 using BankBills.Interfaces;
 
-namespace BankBills.Controllers;
+namespace BankBills.Endpoints;
 
-public static class BankTransactionControllers
+public static class TransactionEndpoints
 {
-	public static void MapBankTransactionControllers(this WebApplication app)
+	public static void MapTransactionEndpoints(this WebApplication app)
 	{
 		var group = app.MapGroup("/api/transactions");
 
 		group.MapGet("/", async (
-			IBankTransactionRepository repo,
+			ITransactionRepository repo,
 			int? month = null, 
 			int? year = null, 
 			Guid? titleId = null, 
@@ -28,7 +28,7 @@ public static class BankTransactionControllers
 
 		group.MapPost("/nubank/import", async (
 			IFormFileCollection files,
-			IBankTransactionService bankTransactionService
+			ITransactionService bankTransactionService
 		) =>
 		{
 			if (files is null || files.Count == 0)

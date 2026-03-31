@@ -1,5 +1,5 @@
-using BankBills.Controllers;
 using BankBills.Data;
+using BankBills.Endpoints;
 using BankBills.Interfaces;
 using BankBills.Repositories;
 using BankBills.Services;
@@ -12,17 +12,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<ITitleRepository, TitleRepository>();
-builder.Services.AddScoped<IBankTransactionRepository, BankTransactionRepository>();
-builder.Services.AddScoped<ITransactionsAnalyticsRepository, TransactionsAnalyticsRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
 builder.Services.AddScoped<ICsvParser, NubankCsvParser>();
-builder.Services.AddScoped<IBankTransactionService, BankTransactionService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 var app = builder.Build();
 
-app.MapBankTransactionControllers();
-app.MapTitlesControllers();
-app.MapAnalyticsControllers();
+app.MapTransactionEndpoints();
+app.MapTitlesEndpoints();
+app.MapAnalyticsEndpoints();
 
 app.Run();

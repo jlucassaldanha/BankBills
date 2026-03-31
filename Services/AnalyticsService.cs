@@ -2,14 +2,13 @@ using BankBills.Models;
 using BankBills.Entities;
 using BankBills.Interfaces;
 
-
 namespace BankBills.Services;
 
 public class AnalyticsService(
-	ITransactionsAnalyticsRepository analyticsRepository
+	IAnalyticsRepository analyticsRepository
 ) : IAnalyticsService
 {
-	public async Task<AnalyticsSummaryRecord> SummaryAnalyticsAsync(
+	public async Task<SummaryAnalyticsRecord> SummaryAnalyticsAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 
@@ -19,7 +18,7 @@ public class AnalyticsService(
 		var result = await analyticsRepository.GetSummaryAsync(month, year, titleId, bank);
 
 		if (result.TotalInFlow == 0 && result.TotalOutFlow == 0)
-			return new AnalyticsSummaryRecord("None", 0, 0, 0, 0, 0, "InFlow");
+			return new SummaryAnalyticsRecord("None", 0, 0, 0, 0, 0, "InFlow");
 		
 		var timeSpan = $"{result.MinDate:dd/MM/yyyy} até {result.MaxDate:dd/MM/yyyy}";
 
@@ -29,7 +28,7 @@ public class AnalyticsService(
 
 		var finalFlow = finalTotal >= 0 ? TransactionType.InFlow : TransactionType.OutFlow;
 
-		return new AnalyticsSummaryRecord(
+		return new SummaryAnalyticsRecord(
 			timeSpan,
 			Math.Round(result.TotalInFlow, 2),
 			Math.Round(result.TotalOutFlow, 2),

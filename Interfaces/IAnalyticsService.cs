@@ -5,7 +5,7 @@ namespace BankBills.Interfaces;
 
 public interface IAnalyticsService
 {
-	Task<AnalyticsSummaryRecord> SummaryAnalyticsAsync(
+	Task<SummaryAnalyticsRecord> SummaryAnalyticsAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 

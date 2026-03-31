@@ -1,5 +1,3 @@
-using BankBills.Entities;
-
 namespace BankBills.Models;
 
 public record CategoryAnalyticsRecord(

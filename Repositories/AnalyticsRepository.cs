@@ -6,11 +6,11 @@ using BankBills.Models;
 
 namespace BankBills.Repositories;
 
-public class TransactionsAnalyticsRepository(AppDbContext db) : ITransactionsAnalyticsRepository
+public class AnalyticsRepository(AppDbContext db) : IAnalyticsRepository
 {
 	private readonly AppDbContext _db = db;
 
-	public async Task<TransactionAnalyticsSummaryRecord> GetSummaryAsync(
+	public async Task<SummaryAnalyticsTransactionRecord> GetSummaryAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 
@@ -27,7 +27,7 @@ public class TransactionsAnalyticsRepository(AppDbContext db) : ITransactionsAna
 		var result = await query
 			.AsNoTracking()
 			.GroupBy(t => 1) 
-			.Select(g => new TransactionAnalyticsSummaryRecord(
+			.Select(g => new SummaryAnalyticsTransactionRecord(
 				g.Max(t => t.Date),
 				g.Min(t => t.Date),
 				g.Where(t => t.Type == TransactionType.InFlow).Sum(t => t.Amount),
@@ -35,10 +35,10 @@ public class TransactionsAnalyticsRepository(AppDbContext db) : ITransactionsAna
 			))
 			.FirstOrDefaultAsync();
 
-		return result ?? new TransactionAnalyticsSummaryRecord(new DateOnly(), new DateOnly(), 0, 0);
+		return result ?? new SummaryAnalyticsTransactionRecord(new DateOnly(), new DateOnly(), 0, 0);
 	}
 
-	public async Task<List<TransactionCategoryAnalyticsRecord>> GetCategorySpentAsync(
+	public async Task<List<CategoryAnalyticsTransactionRecord>> GetCategorySpentAsync(
 		int? month = null, 
 		int? year = null, 
 		BankType? bank = null
@@ -66,7 +66,7 @@ public class TransactionsAnalyticsRepository(AppDbContext db) : ITransactionsAna
 			.ToListAsync();
 
 		return [.. rawData
-			.Select(data => new TransactionCategoryAnalyticsRecord(
+			.Select(data => new CategoryAnalyticsTransactionRecord(
 				data.MaxDate,
 				data.MinDate,
 				data.TitleId,

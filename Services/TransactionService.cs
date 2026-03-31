@@ -4,11 +4,11 @@ using BankBills.Interfaces;
 
 namespace BankBills.Services;
 
-public class BankTransactionService(
+public class TransactionService(
 	ICsvParser csvParser,
-	IBankTransactionRepository bankTransactionRepository,
+	ITransactionRepository bankTransactionRepository,
 	ITitleRepository titleRepository
-) : IBankTransactionService
+) : ITransactionService
 {
 	public async Task ProcessNubankFileAsync(Stream fileStream)
 	{

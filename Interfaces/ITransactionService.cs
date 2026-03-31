@@ -1,6 +1,6 @@
 namespace BankBills.Interfaces;
 
-public interface IBankTransactionService
+public interface ITransactionService
 {
 	Task ProcessNubankFileAsync(Stream fileStream);
 }

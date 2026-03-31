@@ -1,10 +1,10 @@
 using BankBills.Interfaces;
 
-namespace BankBills.Controllers;
+namespace BankBills.Endpoints;
 
-public static class TitlesControllers
+public static class TitlesEndpoints
 {
-	public static void MapTitlesControllers(this WebApplication app)
+	public static void MapTitlesEndpoints(this WebApplication app)
 	{
 		var group = app.MapGroup("/api/titles");
 

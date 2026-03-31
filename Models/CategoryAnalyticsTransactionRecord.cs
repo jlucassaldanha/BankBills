@@ -1,8 +1,6 @@
-using BankBills.Entities;
-
 namespace BankBills.Models;
 
-public record TransactionCategoryAnalyticsRecord(
+public record CategoryAnalyticsTransactionRecord(
     DateOnly MaxDate,
 	DateOnly MinDate,
 	Guid TitleId,

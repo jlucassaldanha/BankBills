@@ -1,8 +1,6 @@
-using BankBills.Entities;
-
 namespace BankBills.Models;
 
-public record AnalyticsSummaryRecord(
+public record SummaryAnalyticsRecord(
     string TimeSpan,
 	double TotalInFlow,
 	double TotalOutFlow,

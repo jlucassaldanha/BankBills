@@ -3,13 +3,13 @@ using BankBills.Models;
 
 namespace BankBills.Interfaces;
 
-public interface IBankTransactionRepository
+public interface ITransactionRepository
 {
 	Task AddTransactionAsync(BankTransaction bankTransaction);
 	Task AddRangeAsync(IEnumerable<BankTransaction> bankTransactions);
 	Task UpdateTransactionAsync(BankTransaction bankTransaction);
 	Task DeleteTransactionAsync(Guid bankTransactionId);
-	Task<List<BankTransactionRecord>> GetTransactionsAsync(
+	Task<List<TransactionRecord>> GetTransactionsAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 
@@ -17,5 +17,5 @@ public interface IBankTransactionRepository
 		TransactionType? type = null
 	);
 	//Task<List<BankTransactionRecord>> GetAllTransactionsAsync();
-	Task<List<BankTransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate);
+	Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate);
 }

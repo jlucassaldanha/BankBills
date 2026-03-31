@@ -6,7 +6,7 @@ using BankBills.Models;
 
 namespace BankBills.Repositories;
 
-public class BankTransactionRepository(AppDbContext db) : IBankTransactionRepository
+public class TransactionRepository(AppDbContext db) : ITransactionRepository
 {
 	private readonly AppDbContext _db = db;
 
@@ -33,7 +33,7 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 		await _db.BankTransaction.Where(bt => bt.Id == bankTransactionId).ExecuteDeleteAsync();
 	}
 
-	public async Task<List<BankTransactionRecord>>GetTransactionsAsync(
+	public async Task<List<TransactionRecord>>GetTransactionsAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 
@@ -69,7 +69,7 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 		}
 
 		return await query
-			.Select(bt => new BankTransactionRecord(
+			.Select(bt => new TransactionRecord(
 				bt.Id,
 				bt.Date,
 				bt.Amount,
@@ -96,12 +96,12 @@ public class BankTransactionRepository(AppDbContext db) : IBankTransactionReposi
 			.ToListAsync();
 	}*/
 
-	public async Task<List<BankTransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate)
+	public async Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate)
 	{
 		return await _db.BankTransaction
 			.AsNoTracking()
 			.Where(t => t.Date >= startDate && t.Date <= endDate)
-			.Select(bt => new BankTransactionRecord(
+			.Select(bt => new TransactionRecord(
 				bt.Id,
 				bt.Date,
 				bt.Amount,

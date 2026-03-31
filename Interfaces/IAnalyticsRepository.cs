@@ -3,15 +3,15 @@ using BankBills.Models;
 
 namespace BankBills.Interfaces;
 
-public interface ITransactionsAnalyticsRepository
+public interface IAnalyticsRepository
 {
-	Task<TransactionAnalyticsSummaryRecord> GetSummaryAsync(
+	Task<SummaryAnalyticsTransactionRecord> GetSummaryAsync(
 		int? month = null, 
 		int? year = null, 
 		Guid? titleId = null, 
 		BankType? bank = null
 	);
-	Task<List<TransactionCategoryAnalyticsRecord>> GetCategorySpentAsync(
+	Task<List<CategoryAnalyticsTransactionRecord>> GetCategorySpentAsync(
 		int? month = null, 
 		int? year = null,  
 		BankType? bank = null
