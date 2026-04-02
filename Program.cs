@@ -21,6 +21,12 @@ builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+	var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+	dbContext.Database.Migrate();
+}
+
 app.MapTransactionEndpoints();
 app.MapTitlesEndpoints();
 app.MapAnalyticsEndpoints();
