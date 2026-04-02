@@ -1,5 +1,7 @@
+using BankBills.DTOs;
 using BankBills.Entities;
 using BankBills.Interfaces;
+using BankBills.Models;
 
 namespace BankBills.Endpoints;
 
@@ -23,8 +25,9 @@ public static class TransactionEndpoints
 			if (bankTransactions.Count <= 0)
 				return Results.NotFound("Transações não encontradas.");
 
-			return Results.Ok(bankTransactions);
-		});
+			return Results.Ok(new DataResponse<List<TransactionRecord>>(bankTransactions));
+		})
+		.WithName("Get Transactions");
 
 		group.MapPost("/nubank/import", async (
 			IFormFileCollection files,
@@ -49,8 +52,9 @@ public static class TransactionEndpoints
 				processedFiles++;
 			}
 
-			return Results.Ok("Arquivo processado e transações importadas para o banco de dados");
+			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
 		})
-		.DisableAntiforgery();
+		.DisableAntiforgery()
+		.WithName("Post Transactions");
 	}
 }

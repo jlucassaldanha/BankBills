@@ -1,5 +1,7 @@
+using BankBills.DTOs;
 using BankBills.Entities;
 using BankBills.Interfaces;
+using BankBills.Models;
 
 namespace BankBills.Endpoints;
 
@@ -17,8 +19,10 @@ public static class AnalyticsEndpoints
 			BankType? bank = null
 		) =>
 		{
-			return await analyticsService.SummaryAnalyticsAsync(month, year, titleId, bank);
-		});
+			var response = await analyticsService.SummaryAnalyticsAsync(month, year, titleId, bank);
+			return Results.Ok(new DataResponse<SummaryAnalyticsRecord>(response));
+		})
+		.WithName("Get Summary");
 
 		group.MapGet("/top-categories", async (
 			IAnalyticsService analyticsService,
@@ -27,7 +31,9 @@ public static class AnalyticsEndpoints
 			BankType? bank = null
 		) =>
 		{
-			return await analyticsService.CategoryAnalyticsAsync(month, year, bank);
-		});
+			var response = await analyticsService.CategoryAnalyticsAsync(month, year, bank);
+			return Results.Ok(new DataResponse<List<CategoryAnalyticsRecord>>(response));
+		})
+		.WithName("Get Top Categories");
 	}
 }
