@@ -1,5 +1,6 @@
-using BankBills.DTOs;
-using BankBills.Interfaces;
+using BankBills.Application.DTOs;
+using BankBills.Domain.Interfaces;
+using BankBills.Domain.Entities;
 
 namespace BankBills.Endpoints;
 
@@ -16,7 +17,7 @@ public static class TitlesEndpoints
             if (titles.Count <= 0)
 				return Results.NotFound("Nenhum título encontrado.");
 
-			return Results.Ok(new DataResponse<List<Entities.Title>>(titles));
+			return Results.Ok(new DataResponse<List<Title>>(titles));
 		})
 		.WithName("Get Titles");
 	}

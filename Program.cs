@@ -1,9 +1,10 @@
-using BankBills.Data;
+using BankBills.Infrastructure.Data;
+using BankBills.Infrastructure.Repositories;
+using BankBills.Application.Interfaces;
+using BankBills.Application.Services;
+using BankBills.Application.Services.Parsers;
 using BankBills.Endpoints;
-using BankBills.Interfaces;
-using BankBills.Repositories;
-using BankBills.Services;
-using BankBills.Services.Parsers;
+using BankBills.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

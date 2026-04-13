@@ -1,7 +1,9 @@
-using BankBills.DTOs;
-using BankBills.Entities;
-using BankBills.Interfaces;
-using BankBills.Models;
+using BankBills.Application.DTOs;
+using BankBills.Domain.Entities;
+using BankBills.Application.Interfaces;
+using BankBills.Domain.Interfaces;
+using BankBills.Application.Models;
+using BankBills.Domain.Enums;
 
 namespace BankBills.Endpoints;
 
