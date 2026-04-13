@@ -4,5 +4,6 @@ namespace BankBills.Interfaces;
 
 public interface ICsvParser
 {
-	IEnumerable<NubankCsvRecord> Parse(Stream fileStream);
+	IEnumerable<NubankCsvRecord> ParseNubank(Stream fileStream);
+	IEnumerable<BBCsvRecord> ParseBB(Stream fileStream);
 }

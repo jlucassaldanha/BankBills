@@ -8,7 +8,8 @@ public enum TransactionType
 
 public enum BankType
 {
-	Nubank = 1
+	Nubank = 1,
+	BB = 2
 }
 
 public class BankTransaction(DateOnly date, double amount, TransactionType type, BankType bank, Guid titleId)

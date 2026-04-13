@@ -55,6 +55,34 @@ public static class TransactionEndpoints
 			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
 		})
 		.DisableAntiforgery()
-		.WithName("Post Transactions");
+		.WithName("Post Nubank Transactions");
+
+		group.MapPost("/bb/import", async (
+			IFormFileCollection files,
+			ITransactionService bankTransactionService
+		) =>
+		{
+			if (files is null || files.Count == 0)
+			{
+				return Results.BadRequest("Nenhum arquivo foi enviado.");
+			}
+
+			int processedFiles = 0;
+
+			foreach(var file in files)
+			{
+				var extension = Path.GetExtension(file.FileName);
+				if (!extension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
+					return Results.BadRequest("Apenas arquivos .csv são aceitos.");
+
+				using var stream = file.OpenReadStream();
+				await bankTransactionService.ProcessBBFileAsync(stream);
+				processedFiles++;
+			}
+
+			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
+		})
+		.DisableAntiforgery()
+		.WithName("Post BB  Transactions");
 	}
 }
