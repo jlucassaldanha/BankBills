@@ -5,6 +5,7 @@ public record CategoryAnalyticsTransactionRecord(
 	DateOnly MinDate,
 	Guid TitleId,
 	string TitleName,
+	string? Bank,
 	double TotalSpent
 );
 

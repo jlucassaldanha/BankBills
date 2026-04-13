@@ -60,6 +60,7 @@ public class AnalyticsRepository(AppDbContext db) : IAnalyticsRepository
 				MinDate = g.Min(t => t.Date),
 				TitleId = g.Key.TitleId,
 				Name = g.Key.Name,
+				Bank = g.Select(t => t.Bank),
 				TotalSpent = g.Sum(t => t.Amount)
 			})
 			.OrderByDescending(c => c.TotalSpent)
@@ -71,6 +72,7 @@ public class AnalyticsRepository(AppDbContext db) : IAnalyticsRepository
 				data.MinDate,
 				data.TitleId,
 				data.Name,
+				data.Bank.ToString(),
 				data.TotalSpent
 			))];
 	}

@@ -83,6 +83,6 @@ public static class TransactionEndpoints
 			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
 		})
 		.DisableAntiforgery()
-		.WithName("Post BB  Transactions");
+		.WithName("Post BB Transactions");
 	}
 }
