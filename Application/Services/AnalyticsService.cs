@@ -58,7 +58,7 @@ public class AnalyticsService(
 				timeSpan,
 				category.TitleId,
 				category.TitleName,
-				category.Bank,
+				category.Bank?.ToString(),
 				Math.Round(category.TotalSpent, 2),
 				totalDays,
 				Math.Round(category.TotalSpent / totalDays, 2)

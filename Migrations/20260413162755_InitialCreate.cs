@@ -12,18 +12,6 @@ namespace BankBills.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Bank",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bank", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Title",
                 columns: table => new
                 {
@@ -43,18 +31,12 @@ namespace BankBills.Migrations
                     Date = table.Column<DateOnly>(type: "date", nullable: false),
                     Amount = table.Column<double>(type: "double precision", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    BankId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Bank = table.Column<string>(type: "text", nullable: false),
                     TitleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BankTransaction", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BankTransaction_Bank_BankId",
-                        column: x => x.BankId,
-                        principalTable: "Bank",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BankTransaction_Title_TitleId",
                         column: x => x.TitleId,
@@ -62,11 +44,6 @@ namespace BankBills.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BankTransaction_BankId",
-                table: "BankTransaction",
-                column: "BankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BankTransaction_TitleId",
@@ -79,9 +56,6 @@ namespace BankBills.Migrations
         {
             migrationBuilder.DropTable(
                 name: "BankTransaction");
-
-            migrationBuilder.DropTable(
-                name: "Bank");
 
             migrationBuilder.DropTable(
                 name: "Title");
