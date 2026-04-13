@@ -116,7 +116,7 @@ public class TransactionService(
 			if (!DateOnly.TryParseExact(record.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
 				continue;
 
-			if (!double.TryParse(record.Amount[..^2], NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+			if (!double.TryParse(record.Amount[..^2], NumberStyles.Any, new CultureInfo("pt-BR"), out var amount))
 				continue;
 
 			var transactionType = record.Amount[^2..].Trim() == "D" ? TransactionType.OutFlow : TransactionType.InFlow;
