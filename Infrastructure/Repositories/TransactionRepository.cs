@@ -97,11 +97,12 @@ public class TransactionRepository(AppDbContext db) : ITransactionRepository
 			.ToListAsync();
 	}*/
 
-	public async Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate)
+	public async Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate, BankType bank)
 	{
 		return await _db.BankTransaction
 			.AsNoTracking()
 			.Where(t => t.Date >= startDate && t.Date <= endDate)
+			.Where(bt => bt.Bank == bank)
 			.Select(bt => new TransactionRecord(
 				bt.Id,
 				bt.Date,

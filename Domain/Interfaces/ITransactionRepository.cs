@@ -18,5 +18,5 @@ public interface ITransactionRepository
 		TransactionType? type = null
 	);
 	//Task<List<BankTransactionRecord>> GetAllTransactionsAsync();
-	Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate);
+	Task<List<TransactionRecord>> GetTransactionsByDateRangeAsync(DateOnly startDate, DateOnly endDate, BankType bank);
 }

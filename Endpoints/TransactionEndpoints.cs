@@ -31,11 +31,18 @@ public static class TransactionEndpoints
 		})
 		.WithName("Get Transactions");
 
-		group.MapPost("/nubank/import", async (
+		group.MapPost("/import/{bank}", async (
+			string bank,
 			IFormFileCollection files,
 			ITransactionService bankTransactionService
 		) =>
 		{
+			if (!Enum.TryParse<BankType>(bank, true, out var bankType))
+			{
+				var validBanks = string.Join(", ", Enum.GetNames<BankType>());
+				return Results.BadRequest($"O Banco '{bank}' não é suportado. Tente um destes: {validBanks}");
+			}
+
 			if (files is null || files.Count == 0)
 			{
 				return Results.BadRequest("Nenhum arquivo foi enviado.");
@@ -50,41 +57,13 @@ public static class TransactionEndpoints
 					return Results.BadRequest("Apenas arquivos .csv são aceitos.");
 
 				using var stream = file.OpenReadStream();
-				await bankTransactionService.ProcessNubankFileAsync(stream);
+				await bankTransactionService.ProcessTransactionFileAsync(stream, bankType);
 				processedFiles++;
 			}
 
 			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
 		})
 		.DisableAntiforgery()
-		.WithName("Post Nubank Transactions");
-
-		group.MapPost("/bb/import", async (
-			IFormFileCollection files,
-			ITransactionService bankTransactionService
-		) =>
-		{
-			if (files is null || files.Count == 0)
-			{
-				return Results.BadRequest("Nenhum arquivo foi enviado.");
-			}
-
-			int processedFiles = 0;
-
-			foreach(var file in files)
-			{
-				var extension = Path.GetExtension(file.FileName);
-				if (!extension.Equals(".csv", StringComparison.OrdinalIgnoreCase))
-					return Results.BadRequest("Apenas arquivos .csv são aceitos.");
-
-				using var stream = file.OpenReadStream();
-				await bankTransactionService.ProcessBBFileAsync(stream);
-				processedFiles++;
-			}
-
-			return Results.Ok($"Transações importadas para com sucesso! {processedFiles} arquivos de {files.Count} processados.");
-		})
-		.DisableAntiforgery()
-		.WithName("Post BB Transactions");
+		.WithName("Post Bank Transactions");
 	}
 }

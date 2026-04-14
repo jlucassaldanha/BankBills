@@ -3,33 +3,40 @@ using BankBills.Domain.Entities;
 using BankBills.Application.Interfaces;
 using BankBills.Domain.Interfaces;
 using BankBills.Domain.Enums;
+using BankBills.Application.Models;
 
 namespace BankBills.Application.Services;
 
 public class TransactionService(
 	ICsvParser csvParser,
-	ITransactionRepository bankTransactionRepository,
+	ITransactionRepository transactionRepository,
 	ITitleRepository titleRepository
 ) : ITransactionService
 {
-	public async Task ProcessNubankFileAsync(Stream fileStream)
+	public async Task ProcessTransactionFileAsync(Stream fileStream, BankType bank)
 	{
+		List<ParsedTransactionRecord> records = [];
+		
+		if (bank == BankType.Nubank)
+			records = await ProcessNubankFileAsync(fileStream);
+		if (bank == BankType.BB)
+			records = await ProcessBBFileAsync(fileStream);
+
+		if (records.Count == 0) return;
+
 		var existingTitles = await titleRepository.GetAllTitlesAsync();
 		var titleDictionary = existingTitles.ToDictionary(t => t.Name.ToUpper(), t => t.Id);
-
-		var rawRecords = csvParser.ParseNubank(fileStream).ToList();
-		if (rawRecords.Count == 0) return;
-
-		var parsedDates = rawRecords
-			.Select(r => DateOnly.TryParseExact(r.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateOnly.MinValue)
+		
+		var parsedDates = records
+			.Select(r => r.Date)
 			.Where(d => d != DateOnly.MinValue)
 			.ToList();
 
 		var minDate = parsedDates.Min();
 		var maxDate = parsedDates.Max();
 
-		var existingTransactions = await bankTransactionRepository.GetTransactionsByDateRangeAsync(minDate, maxDate);
-		
+		var existingTransactions = await transactionRepository.GetTransactionsByDateRangeAsync(minDate, maxDate, bank);
+
 		var transactionOccurrences = new Dictionary<string, int>();
 		foreach (var tx in existingTransactions)
 		{
@@ -40,17 +47,8 @@ public class TransactionService(
 		}
 
 		var bankTransactions = new List<BankTransaction>();
-		foreach (var record in rawRecords)
+		foreach (var record in records)
 		{
-			if (!DateOnly.TryParseExact(record.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
-				continue;
-
-			if (!double.TryParse(record.Amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
-				continue;
-
-			var transactionType = amount > 0 ? TransactionType.OutFlow : TransactionType.InFlow;
-			var absoluteAmount = Math.Abs(amount);
-
 			var titleKey = record.Title.ToUpper();
 			if (!titleDictionary.TryGetValue(titleKey, out Guid currentTitleId))
 			{
@@ -61,7 +59,7 @@ public class TransactionService(
 				titleDictionary.Add(titleKey, currentTitleId);
 			}
 
-			var uniqueKey = $"{date:yyyy-MM-dd}_{currentTitleId}_{absoluteAmount}";
+			var uniqueKey = $"{record.Date:yyyy-MM-dd}_{currentTitleId}_{record.Amount}";
 			if (transactionOccurrences.TryGetValue(uniqueKey, out int currentCount) && currentCount > 0)
 			{
 				transactionOccurrences[uniqueKey] = currentCount - 1;
@@ -69,10 +67,10 @@ public class TransactionService(
 			}
 
 			var transaction = new BankTransaction(
-				date: date,
-				amount: absoluteAmount,
-				type: transactionType,
-				bank: BankType.Nubank,
+				date: record.Date,
+				amount: record.Amount,
+				type: record.Type,
+				bank: bank,
 				titleId: currentTitleId
 			);
 
@@ -81,38 +79,44 @@ public class TransactionService(
 
 		if (bankTransactions.Count > 0)
 		{
-			await bankTransactionRepository.AddRangeAsync(bankTransactions);
+			await transactionRepository.AddRangeAsync(bankTransactions);
 		}
 	}
 
-	public async Task ProcessBBFileAsync(Stream fileStream)
+	private async Task<List<ParsedTransactionRecord>> ProcessNubankFileAsync(Stream fileStream)
 	{
-		var existingTitles = await titleRepository.GetAllTitlesAsync();
-		var titleDictionary = existingTitles.ToDictionary(t => t.Name.ToUpper(), t => t.Id);
+		var rawRecords = csvParser.ParseNubank(fileStream).ToList();
+		var parsedRecords = new List<ParsedTransactionRecord>();
 
-		var rawRecords = csvParser.ParseBB(fileStream).ToList();
-		if (rawRecords.Count == 0) return;
-
-		var parsedDates = rawRecords
-			.Select(r => DateOnly.TryParseExact(r.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : DateOnly.MinValue)
-			.Where(d => d != DateOnly.MinValue)
-			.ToList();
-
-		var minDate = parsedDates.Min();
-		var maxDate = parsedDates.Max();
-
-		var existingTransactions = await bankTransactionRepository.GetTransactionsByDateRangeAsync(minDate, maxDate); // Colocar filtro de qual banco?
-		
-		var transactionOccurrences = new Dictionary<string, int>();
-		foreach (var tx in existingTransactions)
+		foreach (var record in rawRecords)
 		{
-			var key = $"{tx.Date:dd/MM/yyyy}_{tx.TitleId}_{tx.Amount}";
+			if (!DateOnly.TryParseExact(record.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+				continue;
+
+			if (!double.TryParse(record.Amount, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+				continue;
+
+			var transactionType = amount > 0 ? TransactionType.OutFlow : TransactionType.InFlow;
+			var absoluteAmount = Math.Abs(amount);
 			
-			transactionOccurrences.TryGetValue(key, out int count);
-			transactionOccurrences[key] = count + 1;
+			var transaction = new ParsedTransactionRecord(
+				Date: date,
+				Amount: absoluteAmount,
+				Type: transactionType,
+				Title: record.Title
+			);
+
+			parsedRecords.Add(transaction);
 		}
 
-		var bankTransactions = new List<BankTransaction>();
+		return parsedRecords;
+	}
+
+	private async Task<List<ParsedTransactionRecord>> ProcessBBFileAsync(Stream fileStream)
+	{
+		var rawRecords = csvParser.ParseBB(fileStream).ToList();
+		var parsedRecords = new List<ParsedTransactionRecord>();
+
 		foreach (var record in rawRecords)
 		{
 			if (!DateOnly.TryParseExact(record.Date, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
@@ -123,37 +127,16 @@ public class TransactionService(
 
 			var transactionType = record.Amount[^2..].Trim() == "D" ? TransactionType.OutFlow : TransactionType.InFlow;
 
-			var titleKey = record.History.ToUpper();
-			if (!titleDictionary.TryGetValue(titleKey, out Guid currentTitleId))
-			{
-				var newTitle = new Title(record.History);
-				await titleRepository.AddTitleAsync(newTitle);
-
-				currentTitleId = newTitle.Id;
-				titleDictionary.Add(titleKey, currentTitleId);
-			}
-
-			var uniqueKey = $"{date:dd/MM/yyyy}_{currentTitleId}_{amount}";
-			if (transactionOccurrences.TryGetValue(uniqueKey, out int currentCount) && currentCount > 0)
-			{
-				transactionOccurrences[uniqueKey] = currentCount - 1;
-				continue;
-			}
-
-			var transaction = new BankTransaction(
-				date: date,
-				amount: amount,
-				type: transactionType,
-				bank: BankType.BB,
-				titleId: currentTitleId
+			var transaction = new ParsedTransactionRecord(
+				Date: date,
+				Amount: amount,
+				Type: transactionType,
+				Title: record.History
 			);
 
-			bankTransactions.Add(transaction);
+			parsedRecords.Add(transaction);
 		}
 
-		if (bankTransactions.Count > 0)
-		{
-			await bankTransactionRepository.AddRangeAsync(bankTransactions);
-		}
+		return parsedRecords;
 	}
 }
