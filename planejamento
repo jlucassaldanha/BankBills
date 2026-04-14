@@ -1,0 +1,2 @@
+Mudar o endpoint principal de leitura de arquivo para ler só os extratos, tanto do nubank como do banco do brasil
+Posteriormente adicionar endpoint de leitura da fatura do cartão. Deve ser necessario sincronizar isso com o extrato
