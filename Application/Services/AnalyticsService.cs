@@ -54,11 +54,13 @@ public class AnalyticsService(
 			var timeSpan = $"{category.MinDate:dd/MM/yyyy} até {category.MaxDate:dd/MM/yyyy}";
 			int totalDays = category.MaxDate.DayNumber - category.MinDate.DayNumber + 1;
 
+			//var banks = string.Join(", ", category.Bank.Distinct());
+
 			categoriesAnalytics.Add(new CategoryAnalyticsRecord(
 				timeSpan,
 				category.TitleId,
 				category.TitleName,
-				category.Bank?.ToString(),
+				category.Bank,
 				Math.Round(category.TotalSpent, 2),
 				totalDays,
 				Math.Round(category.TotalSpent / totalDays, 2)

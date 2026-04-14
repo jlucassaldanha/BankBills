@@ -73,7 +73,7 @@ public class AnalyticsRepository(AppDbContext db) : IAnalyticsRepository
 				data.MinDate,
 				data.TitleId,
 				data.Name,
-				data.Bank.ToString(),
+				string.Join(", ", data.Bank.Distinct()),
 				data.TotalSpent
 			))];
 	}
