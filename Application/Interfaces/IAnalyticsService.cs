@@ -1,5 +1,4 @@
 using BankBills.Application.Models;
-using BankBills.Domain.Entities;
 using BankBills.Domain.Enums;
 
 namespace BankBills.Application.Interfaces;
